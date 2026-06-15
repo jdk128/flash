@@ -1,0 +1,152 @@
+.theme-light {
+	
+  /* 导航栏*/
+  --nav-bg-color: #EDEDED;
+  --nav-text-color: #171717;
+    /*底部tabBar*/
+  --tab-bg-color: #F7F7F7;
+  --tab-text-color: #191919;
+  --tab-text-color-active: #007AFF;	
+  --tab-border-color:#F5F5F5;
+  /* 背景颜色 */
+  --bg-color: #FFFFFF;
+  --bg-color-grey: #EDEDED;
+  --bg-color-hover: #EDEDED;/*点击状态颜色*/
+  --bg-color-mask: rgba(0, 0, 0, 0.4);/*遮罩颜色*/
+  
+  /* 文字基本颜色 */
+  --text-color: #1A1A1A;/*基本色*/
+  //--text-color-inverse: #FFF;/*反色*/
+  --text-color-grey: #737373;/*辅助灰色，如加载更多的提示信息*/
+  --text-color-placeholder: #808080;
+  //--text-color-disable: #c0c0c0;
+  
+
+  /* 边框颜色 */
+	--border-color: #EDEDED; 
+    --border-hr-color: #EDEDED;  //分割线颜色
+	--box-shadow-color: #777;  //阴影颜色
+	
+	
+	/* 输入框 */
+	--input-border-color: #DDD;  //输入框边框颜色
+	//--input-bg-color: #F7F7F7;  //输入框背景颜色
+	//--input-placeholder-color: #808080;  //输入框占位符颜色
+	--input-text-color: #1A1A1A;  //输入框文字颜色
+	//--input-error-color: #FF0000;  //输入框错误提示颜色
+	//--input-success-color: #00FF00;  //输入框成功提示颜色
+	//--input-disabled-color: #808080;  //输入框禁用态颜色
+	--input-shadow-color: #AAA;  //输入框阴影颜色
+  /* 文字尺寸 */
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  
+    /* swith控件 颜色 */
+	--sw-bg-color:#E9E9E9;
+  
+	
+	
+  /* 行为相关颜色 */
+  //--color-primary: #007aff;
+  //--color-success: #4cd964;
+  //--color-warning: #f0ad4e;
+  //--color-error: #dd524d;
+
+
+
+
+
+
+
+
+
+
+  /* 图片尺寸 */
+  //--img-size-sm: 20px;
+  //--img-size-base: 26px;
+  //--img-size-lg: 40px;
+
+  /* Border Radius */
+  //--border-radius-sm: 2px;
+  //--border-radius-base: 3px;
+  //--border-radius-lg: 6px;
+  //--border-radius-circle: 50%;
+
+  /* 水平间距 */
+  //--spacing-row-sm: 5px;
+  //--spacing-row-base: 10px;
+  //--spacing-row-lg: 15px;
+
+  /* 垂直间距 */
+  //--spacing-col-sm: 4px;
+  //--spacing-col-base: 8px;
+  //--spacing-col-lg: 12px;
+
+  /* 透明度 */
+  //--opacity-disabled: 0.3; /*组件禁用态的透明度*/
+
+  /* 文章场景相关 */
+  //--color-title: #2C405A; /*文章标题颜色*/
+  //--font-size-title: 20px;
+  //--color-subtitle: #555555; /*二级标题颜色*/
+  //--font-size-subtitle: 26px;
+  //--color-paragraph: #3F536E; /*文章段落颜色*/
+  //--font-size-paragraph: 15px;
+}
+
+/* 暗黑主题覆盖示例 */
+.theme-dark {
+  /* 导航栏*/
+  --nav-bg-color: #111111;
+  --nav-text-color: #CFCFCF;
+
+    /*底部tabBar*/
+  --tab-bg-color: #1E1E1E;
+  --tab-text-color: #D2D2D2;
+  --tab-text-color-active: #007AFF;
+  --tab-border-color:#303030;
+  /* 背景颜色 */
+  --bg-color: #111111;
+  --bg-color-grey: #191919;
+  --bg-color-hover: #1D1D1D; /*点击状态颜色*/
+  --bg-color-mask: rgba(0, 0, 0, 0.6);/*遮罩颜色*/
+	
+
+  /* 边框颜色 */
+	//--border-color: #c8c7cc; 
+    --border-hr-color: #5C5C5C;  //分割线颜色
+	--box-shadow-color: #777;  //阴影颜色
+	
+	/* 输入框 */
+	--input-border-color: #404040;  //输入框边框颜色
+	//--input-bg-color: #F7F7F7;  //输入框背景颜色
+	//--input-placeholder-color: #808080;  //输入框占位符颜色
+	--input-text-color: #f7f7f7;  //输入框文字颜色
+	//--input-error-color: #FF0000;  //输入框错误提示颜色
+	//--input-success-color: #00FF00;  //输入框成功提示颜色
+	//--input-disabled-color: #808080;  //输入框禁用态颜色
+	--input-shadow-color: #AAA;  //输入框阴影颜色
+	
+	
+	
+	
+  /* 文字尺寸 */
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  
+  
+  
+  /* 文字基本颜色 */
+  --text-color: #D1D1D1;/*基本色*/
+  --text-color-inverse: #111111;/*反色*/
+  --text-color-grey: #8C8C8C;/*辅助灰色，如加载更多的提示信息*/
+  --text-color-placeholder: #808080;
+  --text-color-disable: #c0c0c0;
+  
+  
+  
+  /* swith控件 颜色 */
+  --sw-bg-color:#5C5C5C;
+}

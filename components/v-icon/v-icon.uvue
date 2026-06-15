@@ -1,0 +1,219 @@
+<template>
+	<text ref="v-icon" 
+		  :class="cls" 
+		  :style="style"
+		  @touchstart="onTouchstart"
+		  @touchend="onTouchend">
+		  {{unicode}}
+	</text>
+</template>
+<script>
+const iconMap = new Map<string, string>([
+	["css", "\ue743"],
+	["stop", "\ue691"],
+	["more", "\ue68a"],
+	["gif", "\ue915"],
+	["html", "\ue8b1"],
+	["run", "\ue6c1"],
+	["jpg", "\ue665"],
+	["png", "\ue626"],
+	["cmd", "\ue758"],
+	["js", "\uec68"],
+	["qrcode", "\ue7ad"],
+	["back", "\ue61e"],
+	["close", "\ue61f"],
+	["down", "\ue621"],
+	["edit", "\ue622"],
+	["right", "\ue623"],
+	["projects", "\ue606"],
+	["my", "\ue600"],
+	["task", "\ue660"],
+	["doc", "\ue8a0"],
+	["home", "\ue609"],
+	["log", "\ue7c3"],
+	["search", "\ue619"],
+	["add", "\ue6ea"],
+	["dark", "\ue666"],
+	["light", "\ue866"],
+	["menu", "\ue790"],
+	
+	
+	  ["device", "\ue692"],
+	  ["image", "\ue695"],
+	  ["fuwu", "\ue603"],
+	  ["exit", "\ue607"],
+	  ["battery", "\ue711"],
+	  ["http", "\ue60a"],
+	  ["security-settings", "\uec4d"],
+	  ["icon", "\ue608"],
+	  ["settings", "\ue851"],
+	  ["root", "\ue627"],
+	  ["capture", "\ue6d1"],
+	  ["foreground-service", "\ue70b"],
+	  ["reset", "\ue618"],
+	  ["editor", "\ue634"],
+	  ["app-manage", "\ue654"],
+	  ["accessibility", "\ue624"],
+	  ["notice", "\ue650"],
+	  ["keep-alive", "\ue651"],
+	  ["file-manage", "\ue661"],
+	  ["ruler", "\ue63c"],
+	  ["float", "\ue601"],
+	  ["encrypt", "\ue602"],
+	  ["ocr", "\ue658"],
+	  ["picker", "\ue67a"],
+	  ["yolo", "\ue79b"],
+	   ["activity", "\ue625"],
+	  ["adb", "\uec1f"],
+	  ["image-tool", "\ue7d5"],
+	  ["plugin", "\ue6c2"],
+	  ["layout", "\ue61a"],
+	
+	
+	["delete", "\ue8c1"],
+	["share", "\ue849"],
+	["timer", "\ue620"],
+	["folder", "\ue603"],
+	["file", "\ue689"],
+])
+const keyframes = [
+	{transform: ["rotate(0)","rotate(360deg)"] }
+]
+export default {
+	name:"v-icon",
+	props:{
+		type:{type:String,default:"home"},			//图标类型
+		size:{type:String,default:""},				//字体大小
+		color:{type:String,default:""},				//字体颜色
+		index:{type:Number,default:-1},				//图标索引
+		ripple:{type:Boolean,default:false}, 		//点击水波纹效果
+		scale:{type:Boolean,default:true},  		//点击放大图标 
+		anim:{type:[Boolean,Number],default:false} 	//是否动画 ，数字则指定动画样式
+	},
+	computed:{
+		//判断外部是否绑定@click this.$attrs['onClick'] != null
+		unicode(){
+			let x = this.index
+			if( x == -1){
+				x = this.i
+			}
+			let arr = this.type.split("|")
+			let code =  iconMap.get(arr[x])
+			this.icons = arr
+			return  code??""
+		},
+		options(){
+			return {
+				duration:2000,
+				iterations:Infinity,
+				easing:"linear"
+			} as UniAnimationOption
+		},
+		v_anim(){
+			if(typeof this.anim === "boolean"){
+				return this.anim ? 1 : 0
+			}else{
+				return this.anim
+			}
+		},
+		style(){
+			let _style = {fontFamily:"iconfont"}
+			if(this.size !== ""){
+				_style.fontSize = this.size
+			}
+			if(this.color !== ""){
+				_style.color = this.color
+			}
+			
+			return _style
+		}
+	},
+	watch:{
+		v_anim(val, oldVal){
+			// 新旧一致不处理
+			if (val === oldVal) return
+			if (val > 0) {
+				this.startAnim()
+			} else {
+				this.pauseAnim()
+			}
+		}
+	},
+	mounted(){
+		if (this.v_anim  == 1) {
+			this.startAnim()
+		}
+	},
+	beforeUnmount(){
+		this.destroyAnim()
+	},
+	data() {
+		return {
+			animation: null as UniAnimation | null,
+			i: 0, //图片索引
+			cls:['v-icon'],
+			icons:[] as string[],
+		};
+	},
+	methods: {
+		onTouchstart(){
+			if(this.ripple) this.cls.push('v-icon-ripple')
+			if(this.scale)  this.cls.push('v-icon-scale')
+		},
+		onTouchend(){
+			let len = this.icons.length
+			let i = -1
+			this.i = (this.i + 1) % len
+			
+			if(this.scale){
+				i = this.cls.indexOf('v-icon-scale')
+				this.cls.splice(i,1)
+			}
+			if(this.ripple){
+				i = this.cls.indexOf('v-icon-ripple')
+				this.cls.splice(i,1)
+			}
+		},
+		// 创建+播放
+		startAnim() {
+			// 已有实例直接播放
+			if (this.animation != null) {
+				this.animation?.play()
+				return false
+			}
+			const el = this.$refs['v-icon'] as UniElement
+			this.animation = el.animate(keyframes[0], this.options)
+			return true
+		},
+		// 暂停
+		pauseAnim() {
+			this.animation?.pause()
+		},
+		// 彻底销毁释放
+		destroyAnim() {
+			if(this.animation != null) {
+				this.animation?.cancel()
+				this.animation = null
+			}
+		}
+	}
+}
+</script>
+<style lang="scss">
+.v-icon{
+	//box-shadow: 0 0 0px #ccc inset, 0 0 0px #ccc;
+	transition: box-shadow 0.3s;
+	color: var(--text-color);
+	font-size: var(--font-size-lg);
+	&.v-icon-ripple{
+		border-radius: 50%;
+		box-shadow: 0 0 20px #ccc inset, 0 0 10px #ccc;
+	}
+	&.v-icon-scale{
+		transform: scale(1.1);
+	}
+}	
+
+
+
+</style>

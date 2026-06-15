@@ -1,0 +1,211 @@
+<template>
+<page-container round :show="modelValue" position="top" @afterleave="onAfterleave" >
+<view class="panel-cmd">
+	 <scroll-view class="panel-cmd-scroll">
+		 <view v-for="item of msgs" class="msg">
+			 <text :class="['type',item.type]">{{item.type}}</text>
+			 <text class="text">{{item.text}}</text>
+		 </view>
+	 </scroll-view>
+	 <view class="foot">
+		 <v-icon type="right" />
+		 <input class="input cmd" focus />
+	 </view>
+</view>
+</page-container>
+</template>
+
+<script>
+type Msg = {
+	type:string,
+	text: string,
+	time: number,
+}
+export default {
+	emits: ['update:modelValue'],
+	props: {
+		modelValue:{type: Boolean, default: false}
+	},
+	data() {
+		return {
+			msgs:
+[
+  {"type": "log", "text": "页面初始化完成，DOM加载完毕", "time": 1718462100123},
+  {"type": "info", "text": "当前接口请求地址：/api/user/getInfo", "time": 1718462100456},
+  {"type": "warn", "text": "本地存储缓存即将过期，请及时刷新数据", "time": 1718462100789},
+  {"type": "error", "text": "网络请求失败，状态码500，服务器内部异常", "time": 1718462101012},
+  {"type": "log", "text": "用户登录成功，userId: 10086", "time": 1718462101345},
+  {"type": "info", "text": "检测到浏览器版本：Chrome 125.0.0.0", "time": 1718462101678},
+  {"type": "warn", "text": "图片资源未设置宽高，可能造成页面布局抖动", "time": 1718462102001},
+  {"type": "error", "text": "JS语法错误：Uncaught ReferenceError: config is not defined", "time": 1718462102334},
+  {"type": "log", "text": "表单校验通过，准备提交表单数据", "time": 1718462102667},
+  {"type": "info", "text": "WebSocket连接建立成功，通道id: ws_7892", "time": 1718462102990},
+  {"type": "warn", "text": "接口响应超时，本次耗时超过3000ms", "time": 1718462103323},
+  {"type": "error", "text": "文件上传失败，文件大小超出20MB限制", "time": 1718462103656},
+  {"type": "log", "text": "路由切换至 /dashboard/home", "time": 1718462103989},
+  {"type": "info", "text": "本地缓存读取成功，获取到23条历史记录", "time": 1718462104212},
+  {"type": "warn", "text": "废弃API接口调用，该接口将于下月下线", "time": 1718462104545},
+  {"type": "error", "text": "权限校验失败，无操作删除数据的权限", "time": 1718462104878},
+  {"type": "log", "text": "定时器开启，轮询间隔5000ms", "time": 1718462105201},
+  {"type": "info", "text": "页面性能指标：FP=210ms, FCP=680ms", "time": 1718462105534},
+  {"type": "warn", "text": "大量重复渲染触发，建议使用memo优化组件", "time": 1718462105867},
+  {"type": "error", "text": "JSON解析失败，返回数据格式不标准", "time": 1718462106190},
+ {
+    "type": "log",
+    "text": "页面初始化完成，DOM已全部渲染",
+    "time": 1718432001200
+  },
+  {
+    "type": "info",
+    "text": "当前用户登录状态：已登录，用户ID：10086",
+    "time": 1718432002145
+  },
+  {
+    "type": "warn",
+    "text": "接口请求超时，将自动发起重试第1次",
+    "time": 1718432003672
+  },
+  {
+    "type": "error",
+    "text": "Uncaught ReferenceError: getData is not defined",
+    "time": 1718432004019
+  },
+  {
+    "type": "log",
+    "text": "本地缓存读取成功，缓存key：user_info",
+    "time": 1718432005330
+  },
+  {
+    "type": "info",
+    "text": "检测到浏览器版本：Chrome 125.0.0.0",
+    "time": 1718432006781
+  },
+  {
+    "type": "warn",
+    "text": "废弃API警告：getOldData方法将于v2.0移除",
+    "time": 1718432007922
+  },
+  {
+    "type": "error",
+    "text": "网络请求失败 404 Not Found /api/list",
+    "time": 1718432008105
+  },
+  {
+    "type": "log",
+    "text": "表单校验通过，准备提交数据",
+    "time": 1718432009441
+  },
+  {
+    "type": "info",
+    "text": "图片资源加载完成，共加载12张静态图",
+    "time": 1718432010227
+  },
+  {
+    "type": "warn",
+    "text": "内存占用过高，当前占用82%，建议释放无用变量",
+    "time": 1718432011663
+  },
+  {
+    "type": "error",
+    "text": "SyntaxError: Unexpected token '}' in line 36",
+    "time": 1718432012890
+  },
+  {
+    "type": "log",
+    "text": "路由切换成功 /home -> /mine",
+    "time": 1718432013554
+  },
+  {
+    "type": "info",
+    "text": "WebSocket连接建立成功，地址：wss://shturl.",
+    "time": 1718432014778
+  },
+  {
+    "type": "warn",
+    "text": "传入参数类型不匹配，预期Number，实际获得String",
+    "time": 1718432015912
+  },
+  {
+    "type": "error",
+    "text": "跨域请求被拦截 Access-Control-Allow-Origin 不匹配",
+    "time": 1718432016335
+  },
+  {
+    "type": "log",
+    "text": "定时器销毁完成，清除定时任务id: 15",
+    "time": 1718432017001
+  },
+  {
+    "type": "info",
+    "text": "主题切换为深色模式，本地配置已保存",
+    "time": 1718432018446
+  },
+  {
+    "type": "warn",
+    "text": "本地存储容量即将用尽，剩余空间不足5%",
+    "time": 1718432019773
+  },
+  {
+    "type": "error",
+    "text": "TypeError: Cannot read properties of undefined (reading 'name')",
+    "time": 1718432020119
+  }
+  
+  
+] as Msg[]
+				
+		
+		}
+	},
+	mounted() {
+			
+	},
+	methods: {
+		onAfterleave(){
+			this.$emit('update:modelValue', false)
+		}
+	}
+}
+</script>
+
+<style lang="scss">
+.panel-cmd{
+	
+	padding-top: var(--status-bar-height);
+	height: 300px;
+	background-color: var(--bg-color);
+	&-scroll{
+		flex: 1;
+		.msg{
+			flex-direction: row;
+			margin: 2px 0;
+			padding: 0px 10px;
+			.type{
+				width: 35px;
+				border: 1px dashed var(--border-color);
+				&.error{ color: red; }
+				&.warn{ color: yellowgreen; }
+				&.info{ color: blue; }
+			}
+			.type,.text{
+				color: var(--text-color);
+				font-size: var(--font-size-sm);
+			}
+			
+		}
+	}
+	.foot{
+		flex-direction: row;
+		align-items: center;
+		padding: 0 10px;
+		.cmd{
+			flex: 1;
+			border:none;
+			box-shadow: none;
+			//border:1px dashed white;
+			
+		}
+	}
+
+}
+</style>

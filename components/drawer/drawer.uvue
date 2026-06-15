@@ -1,0 +1,196 @@
+<template>
+<page-container :show="modelValue" :custom-style="custom_style" position="left" @afterleave="onAfterleave">
+<view class="drawer">
+	<view class="drawer-card">
+		<image class="logo" src="/static/logo.png" />
+		<view class="title-wrap">
+			<text class="title">闪控</text>
+			<text class="sub-title">v1.0.0 Alpha</text>
+		</view>
+		<view class="icon"><v-icon type="light|dark"  ripple @click="onThemeClick" :index="theme_index" /></view>
+		<view class="icon" ><v-icon type="more" /></view>
+		
+	</view>
+	<scroll-view  class="drawer-scroll">
+		<text class="h1">辅助工具</text>
+		<view v-for="item of tools" :key="item.title" class="item tools">
+			<v-icon class="icon" :type="item.icon"/>
+			<text class="title">{{item.title}}</text>
+		</view>
+		<text class="h1">权限状态</text>
+		<view v-for="item of permissions" :key="item.title" class="item">
+			<v-icon class="icon" :type="item.icon"/>
+			<text class="title">{{item.title}}</text>
+			<switch :checked="item.state" style="transform: scale(0.6)" background-color="var(--sw-bg-color)" />
+		</view>
+	</scroll-view>
+	<view class="drawer-bars">
+		<view v-for="item of bars" class="item">
+			<v-icon class="icon" :type="item.icon" size="18px" />
+			<text class="title">{{item.title}}</text>
+		</view>
+	</view>
+</view>
+</page-container>
+</template>
+<script>
+import { state } from '../../pages/store';
+type DrawerItem = {
+	title: string;
+	icon: string;
+	state?: boolean;
+}
+
+export default {
+	emits: ['update:modelValue'],
+	props: {
+		modelValue: { type: Boolean, default: false }
+	},
+	data() {
+		return {
+			theme_index:0,
+			custom_style: "background-color:var(--nav-bg-color);padding-top:var(--status-bar-height);padding-bottom:var(--uni-safe-area-inset-bottom);width:250px;border-radius:0 20px 20px 0",
+			permissions:[
+					{title:"悬浮窗",state:false,icon:"float"},
+					{title:"无障碍",state:false,icon:"accessibility"},
+					{title:"前台服务",state:false,icon:"foreground-service"},
+					{title:"保活服务",state:false,icon:"keep-alive"},
+					{title:"截屏服务",state:false,icon:"capture"},
+					{title:"发布通知",state:false,icon:"notice"},
+					{title:"文件管理",state:false,icon:"file-manage"},
+					{title:"软件管理",state:false,icon:"app-manage"},
+					{title:"电池优化",state:false,icon:"battery"},
+					{title:"安全设置",state:false,icon:"security-settings"},
+					{title:"root",state:false,icon:"root"},
+					{title:"shizuku",state:false,icon:"adb"},
+				] as DrawerItem[],
+			tools:[
+					{title:"布局分析",icon:"layout"},
+					{title:"图色助手",icon:"image-tool"},
+					{title:"屏幕取色",icon:"picker"},
+					{title:"屏幕标尺",icon:"ruler"},
+					{title:"内置图标",icon:"icon"},
+					{title:"设备信息",icon:"device"},
+					{title:"日志信息",icon:"cmd"},
+					{title:"加密解密",icon:"encrypt"},
+					{title:"代码编辑器",icon:"editor"},
+					{title:"ocr 调试",icon:"ocr"},
+					{title:"http 调试",icon:"http"},
+					{title:"Yolo 调试",icon:"yolo"},
+					{title:"shizuku 调试",icon:"adb"},
+					{title:"Activity 记录",icon:"activity"},
+				] as DrawerItem[],
+			bars:[
+					{title:"设置",icon:"settings"},
+					{title:"插件",icon:"plugin"},
+					{title:"重启",icon:"reset"},
+					{title:"退出",icon:"exit"},
+				] as DrawerItem[]
+			
+		}
+	},
+	methods: {
+		close(){
+			this.$emit('update:modelValue', false)
+		},
+		onAfterleave() {
+			// 赋值会触发set，派发事件给父
+			this.close()
+		},
+		/* 
+		 * 主题切换
+		 */
+		onThemeClick(){
+			if(state.theme.includes('light')){
+				state.theme = 'theme-dark'
+				this.theme_index = 1
+			}else{
+				state.theme = 'theme-light'
+				this.theme_index = 0
+			}
+			this.close()
+		}
+	}
+}
+</script>
+
+<style lang="scss">
+.drawer {
+	height: 100%;
+  &-card {
+    flex-direction: row;
+    align-items: center;
+	padding: 10px;
+	background-color: var(--nav-bg-color);
+	
+	  .logo {
+		width: 40px;
+		height: 40px;
+		transform: scale(1.2);
+	  }
+	  .title-wrap {
+		flex: 1;
+		padding:0 15px;
+		  .title {
+			font-size: 18px;
+			font-weight: bold;
+			color: var(--nav-text-color);
+		  }
+		  .sub-title {
+			font-size: 12px;
+			color: var(--text-color-grey);
+		  }
+	  }
+	  .icon {
+		 
+		  padding: 8px 5px;
+		  margin: 0 5px;
+		// 如需统一图标尺寸可补充
+	  }
+  }
+  &-scroll{
+	  flex: 1;
+	  padding-bottom: 10px;
+	  background-color: var(--bg-color);
+	  .h1{
+		  font-size: var(--font-size-sm);
+		  color: var(--text-color-grey);
+		  margin: 10px 30px 3px 20px;
+		  padding-bottom: 5px;
+		  border-bottom: 1px dashed var(--border-hr-color);
+	  }
+	  .item{
+		  flex-direction: row;
+		  align-items: center;
+		  margin: 0px 10px 0 20px;
+		   //border: 1px solid gray;
+		  .icon{}
+		  .title{
+			  flex: 1;
+			  margin: 0 10px; 
+			  font-size: var(--font-size-base); 
+			  color: var(--text-color);
+			}
+	  }
+	  .tools{
+		  margin: 7px 10px 7px 20px;
+	  }
+  }
+  &-bars {
+	  flex-direction: row;
+	  border-top: 1px solid var(--tab-border-color);
+	  background-color: var(--tab-bg-color);
+	  padding-top: 5px;
+	  padding-bottom:10px;
+	  justify-content: space-around;
+	  .item{
+		   flex-direction: column;
+		   .title{
+			   margin-top: 5px;
+			   color: var(--tab-text-color);
+			   font-size: 10px;
+		   }
+	  }
+  }
+}
+</style>

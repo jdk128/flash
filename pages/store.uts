@@ -1,0 +1,105 @@
+type State = {
+  navBarHeight:number,
+  theme: string
+}
+
+//theme-dark   theme-light
+export const state = reactive<State>({
+	navBarHeight	: 44,  //顶部导航栏高度，要写在这里，子组件要用到。如弹出菜单 projects.uvue
+	theme: "theme-light"
+})
+/**
+ * 格式化模板(fmt)占位符说明
+ * yyyy  4位完整年份 例:2026
+ * yy    2位简写年份 例:26
+ * mm    补零两位月份 01~12
+ * m     不补零月份 1~12
+ * dd    补零两位日期 01~31
+ * d     不补零日期 1~31
+ * hh    24小时制补零小时 00~23
+ * HH    12小时制补零小时 01~12
+ * ii    补零分钟 00~59
+ * ss    补零秒钟 00~59
+ *
+ * 分隔符自由搭配: - / : 年月日 等文字符号均可
+ * 示例模板:
+ * "yyyy-mm-dd hh:ii:ss"
+ * "yyyy年mm月dd日 hh时ii分ss秒"
+ * "yy/m/d hh-ii"
+ */
+/**
+ * 日期格式化
+ * @param date 待格式化时间：时间戳/日期字符串/Date对象
+ * @param fmt 基础格式模板
+ * @param autoShrink 是否开启自动精简
+ * @param baseDate 对比基准时间(默认当前时间)
+ */
+ export  function dateFormat (
+	date : string | number ,
+	fmt : string = "yyyy-mm-dd hh-ii-ss",
+	autoShrink : boolean = false,
+	baseDate : string | number  = Date.now()
+) : string {
+	
+	if(typeof date == 'string') date = parseInt(date)
+	if(typeof baseDate == 'string') baseDate = parseInt(baseDate)
+	
+	const d = new Date(date)
+	const base = new Date(baseDate)
+	if (isNaN(d.getTime()) || isNaN(base.getTime())) return ""
+
+	// 原始时间数值
+	const year = d.getFullYear()
+	const shortYear = year.toString().slice(-2)
+	const month = d.getMonth() + 1
+	const padMonth = month.toString().padStart(2, '0')
+	const day = d.getDate()
+	const padDay = day.toString().padStart(2, '0')
+
+	const hour24 = d.getHours()
+	const padHour24 = hour24.toString().padStart(2, '0')
+	const hour12 = hour24 > 12 ? hour24 - 12 : hour24
+	const padHour12 = hour12.toString().padStart(2, '0')
+	const minute = d.getMinutes()
+	const padMinute =minute.toString().padStart(2, '0')
+	const second = d.getSeconds()
+	const padSecond = second.toString().padStart(2, '0')
+
+	// 先完整替换占位符
+	let result = fmt
+		.replace(/yyyy/g, year.toString())
+		.replace(/yy/g, shortYear)
+		.replace(/mm/g, padMonth)
+		.replace(/m/g, month.toString())
+		.replace(/dd/g, padDay)
+		.replace(/d/g, day.toString())
+		.replace(/hh/g, padHour24)
+		.replace(/HH/g, padHour12)
+		.replace(/ii/g, padMinute)
+		.replace(/ss/g, padSecond)
+
+	// 不开启精简直接返回
+	if (!autoShrink) return result
+
+	const baseYear = base.getFullYear()
+	const baseMonth = base.getMonth() + 1
+	const baseDay = base.getDate()
+
+	// 层级判断：同年→去年；同月→去年月；同日→只留时分秒
+	if (year === baseYear) {
+		if (month === baseMonth && day === baseDay) {
+			// 同一天：清除所有年月日及前面的分隔
+			result = result.replace(/^\D*?(\d{4}|\d{2})[^\d]*?(\d{1,2})[^\d]*?(\d{1,2})[^\s]*/, "")
+		} else if (month === baseMonth) {
+			// 同月份：只清除年份区块
+			result = result.replace(/^(\d{4}|\d{2})[^\d]*?/, "")
+		} else {
+			// 同年不同月：清除年份
+			result = result.replace(/^(\d{4}|\d{2})[^\d]*?/, "")
+		}
+	}
+    
+	// 清理首尾多余分隔符、空格
+	result = result.trim().replace(/^[-_\/:、年月日]/, "").replace(/[-_\/:、年月日]$/, "")
+	return result.split(" ")[0]
+}

@@ -1,0 +1,60 @@
+<template>
+<view class="nav-bar">
+	<view class="left">
+		<v-icon class="icon" v-for="name of leftIcon.split('|')" :type="name" @click="iconClickEvent(name,$event)" size="20px" color="var(--nav-text-color)" />
+	</view>
+	<text class="mid"><slot></slot></text>
+	<view class="right">
+		<v-icon class="icon" v-for="name of rightIcon.split('|')" :type="name" @click="iconClickEvent(name,$event)" size="20px" color="var(--nav-text-color)"  />
+	</view>
+</view>
+</template>
+<script>
+export default {
+	emits:["icon:Click"],
+	props:{
+		leftIcon:{type:String,default:""},
+		rightIcon:{type:String,default:""}
+	},
+	computed: {
+	
+	},
+	data() {
+		return {
+			
+		}
+	},
+	methods: {
+		iconClickEvent(name:String,evt:any){
+			const {clientX,clientY} = evt as UniPointerEvent
+			//console.log(clientX,clientY)
+			this.$emit("icon:Click",name,Math.ceil(clientX),Math.ceil(clientY))
+		}
+	}
+}
+</script>
+
+<style lang="scss">
+.nav-bar{
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	box-sizing: content-box;
+	height: var(--nav-height);
+	padding-top: var(--status-bar-height);
+	background-color: var(--nav-bg-color);
+	.left,.right{
+		flex-direction: row;
+	}
+	.icon{
+		margin: 0 10px;
+	}
+	.mid{
+		position: absolute;
+		left: 50px;
+		right: 50px;
+		text-align: center;
+		color: var(--nav-text-color);
+	}
+}
+</style>

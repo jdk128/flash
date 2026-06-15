@@ -1,0 +1,203 @@
+<template>
+	
+	<view class="contextmenu-overlay" v-if="isShow" @click.stop="close"></view>
+	<!-- 外层容器：仅负责定位+translate翻转，无动画 -->
+	<view 
+		class="contextmenu-wrapper"
+		v-if="isShow" 
+		:style="wrapperStyle"
+		ref="contextmenu"
+	>
+		<!-- 内层菜单：负责样式+scale缩放动画 -->
+		<view  class="contextmenu"  :class="{ show: isOpen}" :style="style" >
+			<view v-for="item of _menu" class="item"  @click="onItemClick(item.title)">
+				<v-icon :type="item.icon" class="icon" />
+				<text class="title">{{item.title}}</text>
+			</view>
+		</view>
+	</view>
+</template>
+<script>
+type ContextmenuItemType = {
+	icon?: string;
+	title: string
+}
+export default {
+	emits:["update:modelValue","update:cmd"],
+	props: {
+		cmd:{type:String,default:""},
+		modelValue:{type:Boolean,default:false},
+		pos:{type:Array,default:()=>[0,0]},
+		menu:{type:String,default:""}
+	},
+	data(){
+		return {
+			cls:['contextmenu'],
+			wrapperStyle: "", 	// 外层容器的定位样式
+			style: "", 			// 内层菜单的样式
+			isShow: false, 		// 控制v-if：元素是否挂载
+			isOpen: false, 		// 控制show类：是否触发展开动画
+			hasIcon: false,		// 是否有图标
+		}
+	},
+	computed:{
+		_menu(){
+			this.hasIcon = this.menu.includes('&')
+			return this.menu.split("|").map(str=>{
+				const item:ContextmenuItemType = {title:str,icon:"-"}
+				if(str.includes('&')){
+					let arr =  str.split("&")
+					item.icon = arr[0]
+					item.title = arr[1]
+				}
+				return item
+			})
+		}
+	},
+	watch:{
+		modelValue(val){
+			if(val == true){
+				//先挂载DOM元素
+				this.isShow = true
+				//等DOM渲染完成，计算尺寸和位置
+				this.$nextTick(()=>{
+					const el = this.$refs['contextmenu'] as UniElement | null
+					if(el != null){
+						this.setPos(el.offsetWidth,el.offsetHeight)
+					}
+					
+				})
+			}else {
+				// 移除show类，触发收起动画
+				this.isOpen = false
+				//等动画结束后，再销毁DOM元素
+				setTimeout(()=>{
+					this.isShow = false
+				}, 300)
+			}
+		}
+	},
+	methods:{
+		close(){
+			this.$emit('update:modelValue',false)
+		},
+		onItemClick(title:string){
+			this.$emit('update:cmd',title)
+			this.close()
+		},
+		setPos(offsetWidth:number,offsetHeight:number){
+			const [left, top] = this.pos as number[]
+			const { windowWidth, windowHeight } = uni.getWindowInfo()
+			// 水平方向计算
+			let tx = "0px" //位置偏移 
+			let ox = "left"  // 缩放原点位置
+			if(left > windowWidth - offsetWidth - 10) {
+				tx = "-100%"
+				ox = "right"
+			}
+			// 垂直方向计算
+			let ty = "0px"   //位置偏移 
+			let oy = "top"   //缩放原点位置
+			if(top > windowHeight - offsetHeight - 10) {
+				ty = "-100%"
+				oy = "bottom"
+			}
+			let style = 'transition: transform 0.3s ease, opacity 0.3s ease;'
+			// 设置样式
+			this.wrapperStyle =  `
+				left: ${left}px;
+				top: ${top}px;
+				width: ${offsetWidth}px;
+				transform: translate(${tx}, ${ty});`
+			//#ifdef APP	
+			//app  transition   不支持指定多个过渡效果
+			  style =  'transition: all 0.3s;';
+			//#endif
+			
+			this.style = style + `transform-origin:${ox} ${oy};`
+			// 等初始状态渲染完成，再加show类触发展开动画
+			this.$nextTick(()=>{
+				this.isOpen = true
+			})
+		}
+	}
+}
+</script>
+
+<style lang="scss" >
+.contextmenu-overlay{
+	position: fixed;
+	opacity: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 9998;
+	background-color: var(--bg-color-mask);
+}
+/* 外层容器：仅定位，无任何过渡动画 */
+.contextmenu-wrapper{
+	position: fixed;
+	padding: 8px;
+	z-index: 9999;
+	box-sizing: border-box;
+	//transform: translate(var(--tx), var(--ty));
+}
+
+.contextmenu{
+	/* 外观 */
+	background-color: var(--bg-color);
+	border-radius: 5px;
+	box-sizing: border-box;
+	box-shadow: 1px 2px 8px var(--box-shadow-color);
+	opacity: 0;
+	transform: scale(0);
+	//app  transform-origin  不支持使用 var()。
+	//app  transition   不支持指定多个过渡效果,不支持使用 var()。
+	padding: 10px 0;
+	&.show{
+		opacity: 1;
+		transform: scale(1);
+	}
+
+	.item{
+		flex-direction: row;
+		align-items: center;
+		.icon{padding: 10px;width: 36px;}
+		.title{
+			padding: 10px 25px 10px 0;
+			font-size: var(--font-size-base);
+			color: var(--text-color);
+			border-bottom: 1px solid var(--border-hr-color);
+		}
+	}
+}
+.page-container-popup{
+	position: relative;
+	padding: 8px;
+	flex: 1;
+	.arrow{
+		position: absolute;
+		top: -7px;
+		left: 50px;
+		width: 0;
+		height: 0;
+		border-width: 0px;
+		border-style: solid;
+		border-color: transparent transparent #FFF transparent;
+	}
+
+}
+</style>
+
+<!-- 
+
+因有动画 ，无法自适应宽高，，必须写死一个固定的宽高。。
+
+
+ 通过 createSelectorQuery 获取触发按钮的布局矩形
+ 计算弹窗 left、top 坐标（按钮正下方）
+ 区分左 / 中 / 右三种对齐修正横向偏移
+ 动态赋值 custom-style 给 page-container 实现悬浮定位
+ 同步调整顶部三角箭头的横向位置匹配对齐方式
+ 增加屏幕左右边界校验，避免弹窗溢出可视区
+ 
+ -->

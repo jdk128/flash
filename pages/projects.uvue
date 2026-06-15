@@ -1,0 +1,328 @@
+<template>
+	<contextmenu :menu="contextmenu.menu" v-model="contextmenu.show" :pos="contextmenu.pos" @update:cmd="onContextmenuClick" />
+	<page-container position="top" round :show="panel_create.show" @clickoverlay="panel_create.show = false">
+		<view class="projects-create-panel">
+			<view class="header">
+				<text class="title">{{panel_create.title}}</text>
+				<text class="suffix" v-if="panel_create.icon == 'js'">{{panel_create.value}}.js</text>
+				<v-icon v-else :type="panel_create.icon" class="icon" />
+			</view>
+			<input :placeholder="panel_create.placeholder" v-model="panel_create.value" class="input" :focus="panel_create.show" />
+			<view class="btns">
+				<button class="btn" @click="createOnClose">关闭</button>
+				<button type="primary" class="btn" @click="createOnSubmit">确定</button>
+			</view>
+		</view>
+	</page-container>
+	<scroll-view class="scroll-view-projects" @scroll="onScroll">
+		<view v-for="(item,i) of list" :key="item.name" class="list-item" hover-class="hover-item">
+			<!-- 左侧图标 -->
+			<v-icon :type="item.icon" class="icon" size="26px" color="var(--text-color-grey)" />
+			<!-- 中间文字信息区域 -->
+			<view class="info" @longpress="onLongpress(item,i,$event)" @touchstart="onTouchstart"
+				@touchmove="onTouchmove">
+				<text class="name">{{item.name}}</text>
+				<text class="date" v-if="'app-manage|folder'.includes(item.icon) == false">{{item.date}}</text>
+			</view>
+			<!-- 右侧操作图标 -->
+			<v-icon v-if="item.icon=='js'|| item.icon=='app-manage'" type="run|stop" class="right-icon" />
+			<v-icon v-else-if="item.icon == 'folder'" type="right" class="right-icon" />
+			<v-icon v-else type="-" class="right-icon" />
+		</view>
+	</scroll-view>
+</template>
+<script>
+	import { state, dateFormat } from './store';
+	type FileType = {
+		name : string;
+		icon : string;
+		size : string;
+		date : string;
+	}
+	type ContextmenuType = {
+		pos : number[];
+		show : boolean;
+		menu : string;
+	}
+	type panelCreateType = {
+		show : boolean;
+		value : string;
+		title : string;
+		icon : string;
+		placeholder : string;
+	}
+
+	export default {
+		emits: ["update:modelValue"],
+		props: {
+			modelValue: { type: String, default: "" }
+		},
+		data() {
+			return {
+				current: 0, //当前选中的索引
+				touchmove: 0,
+				is_scrolling: false,
+				panel_create: { show: false, value: "", title: "", placeholder: "", icon: "" } as panelCreateType,
+				list: [] as FileType[],
+				contextmenu: { show: false, pos: [0, 0], menu: "" } as ContextmenuType
+			}
+		},
+		watch: {
+			modelValue(name : string) {
+				let title = "创建脚本"
+				let placeholder = "请输入脚本名称"
+				let icon = "js"
+				if (name != "") {
+					switch (name) {
+						case "创建项目":
+							title = "创建项目"
+							icon = "app-manage"
+							placeholder = "请输入项目名称"
+							break
+						case "新建文件":
+							title = "新建文件"
+							icon = "file"
+							placeholder = "请输入文件名称"
+							break
+						case "新建文件夹":
+							icon = "folder"
+							title = "新建文件夹"
+							placeholder = "请输入文件夹名称"
+							break
+					}
+					this.panel_create.show = true
+					this.panel_create.icon = icon
+					this.panel_create.title = title
+					this.panel_create.placeholder = placeholder
+					this.$emit("update:modelValue", "")
+				}
+			}
+		},
+		mounted() {
+			"本地调试服务已启动，如需客户端调用本地云函数，".match(/.{1,20}/g)?.forEach(str => {
+				this.panel_create.value = str as string
+				this.panel_create.icon = "js"
+				this.createOnSubmit()
+			})
+			"请在对应的客户端的运行控制台切换为连接本地云函数".match(/.{1,5}/g)?.forEach(str => {
+				this.panel_create.value = str as string
+				this.panel_create.icon = "folder"
+				this.createOnSubmit()
+			})
+			"想要按固定长度切分片段，".match(/.{1,5}/g)?.forEach(str => {
+				this.panel_create.value = str as string
+				this.panel_create.icon = "app-manage"
+				this.createOnSubmit()
+			})
+			"自动获取焦点，与focus属性对比，此属性".match(/.{1,4}/g)?.forEach(str => {
+				this.panel_create.value = str as string
+				this.panel_create.icon = "file"
+				this.createOnSubmit()
+			})
+
+		},
+		methods: {
+			/* 
+			文件排序 0-文件夹，1-js文件 2-其他文件
+			 */
+			sort() {
+				const folder : FileType[] = []
+				const app : FileType[] = []
+				const js : FileType[] = []
+				const other : FileType[] = []
+				this.list.forEach(item => {
+					switch (item.icon) {
+						case "folder":
+							folder.push(item)
+							break
+						case "app-manage":
+							app.push(item)
+							break
+						case "js":
+							js.push(item)
+							break
+						default:
+							other.push(item)
+					}
+				})
+				this.list = [...folder, ...app, ...js, ...other]
+			},
+			/* 
+			 * 创建文件面板 -- 关闭
+			 */
+			createOnClose() {
+				this.panel_create.show = false
+				this.panel_create.value = ""
+				this.current = Math.abs(this.current)
+			},
+			/* 
+			 * 创建文件面板 -- 提交
+			 */
+			createOnSubmit() {
+				if (this.current < 0) {
+					let i = Math.abs(this.current) - 10
+					this.list[i].name = this.panel_create.value
+					this.current = i
+				} else {
+					let name = this.panel_create.value
+					let date = dateFormat(Date.now(), "yy年mm月dd日 hh:ii", true)
+					let icon = this.panel_create.icon
+					this.list.unshift({ name, icon, date, size: '0 KB' })
+					this.sort()
+				}
+				this.createOnClose()
+
+			},
+			onScroll() {
+
+				this.is_scrolling = true  	//滚动时，设置滚动状态，防止长按菜单弹出
+			},
+			onTouchstart(evt : UniTouchEvent) {
+				this.touchmove = evt.touches[0].clientX
+				this.is_scrolling = false  //每次点击，重置滚动状态，否则，长按菜单无法弹出
+			},
+			onTouchmove(evt : UniTouchEvent) {
+				let move = evt.touches[0].clientX
+				if (Math.abs(move - this.touchmove) > 10) {  //左右滑动距离大于10px，则认为是在滚动，设置滚动状态，防止长按菜单弹出
+					this.is_scrolling = true
+				}
+			},
+			/* 
+			 * 长按弹出菜单
+			 */
+			onLongpress(item : FileType, i : number, _evt : any) {
+				const evt = _evt as UniTouchEvent
+				if (this.is_scrolling == false) {
+					let { clientX, clientY } = evt.touches[0]
+					//web 平台需要减掉44px ，导航栏的高度， app 不用加。
+					if (uni.getAppBaseInfo().uniPlatform == "web") {
+						clientY -= state.navBarHeight
+					}
+					this.current = i
+					this.contextmenu.pos = [clientX, clientY]
+					this.showMatchMenu(item)
+
+				} else {
+					this.is_scrolling = false
+				}
+			},
+			//展示匹配对应菜单
+			showMatchMenu(item : FileType) {
+				let menu = "重命名|share&分享|delete&删除"
+				switch (item.icon) {
+					case "js":
+						menu = "timer&定时任务|" + menu
+						break
+				}
+
+				this.contextmenu.menu = menu
+				this.contextmenu.show = true
+			},
+			/* 
+			 * 长按菜单点击事件
+			 */
+			onContextmenuClick(cmd : string) {
+				const file = this.list[this.current]
+				switch (cmd) {
+					case "删除":
+						this.list.splice(this.current, 1)
+						break
+					case "重命名":
+						this.panel_create.show = true
+						this.panel_create.title = `重命名：${file.name}`
+						this.panel_create.icon = file.icon
+						this.panel_create.value = file.name
+						//取反值+偏移值(防止它是-0) 表示。正在重合名，做标记
+						this.current = -this.current - 10
+						break
+				}
+			}
+
+		}
+	}
+</script>
+
+<style lang="scss">
+.scroll-view-projects {
+	background-color: var(--bg-color);
+	flex: 1;
+
+	.list-item {
+		flex-direction: row;
+		align-items: center;
+
+		.icon {
+			padding: 15px 20px;
+			//border: 1px dashed gray;
+		}
+
+		.info {
+			flex: 1;
+			padding: 15px 0;
+			flex-direction: row;
+			//border-bottom: 1px dashed var(--border-hr-color);
+
+			//border: 1px dashed blue;
+			.name {
+				color: var(--text-color);
+				font-size: var(--font-size-lg);
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				flex: 1;
+			}
+
+			.date {
+				margin-top: 2px;
+				color: var(--text-color-placeholder);
+				font-size: var(--font-size-sm);
+				//border: 1px dashed blue;
+			}
+		}
+
+		.right-icon {
+			//border: 1px dashed blue;
+			padding: 15px 0;
+			width: 60px;
+			text-align: center;
+			//border-bottom: 1px dashed var(--border-hr-color);
+		}
+	}
+}
+
+.projects-create-panel {
+	padding: 20px 30px;
+	background-color: var(--bg-color);
+	.header {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		.title {
+			padding: 10px;
+			color: var(--text-color);
+		}
+		.suffix,
+		.icon {
+			padding: 10px;
+			color: var(--text-color-placeholder);
+		}
+	}
+
+
+
+	.input {
+		// 原有.input全局样式保留，此处无需额外复写
+	}
+
+	.btns {
+		flex-direction: row;
+		justify-content: space-between;
+		padding: 20px 0;
+		.btn {
+			width: 120px;
+		}
+	}
+
+
+}
+</style>

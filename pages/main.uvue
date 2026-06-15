@@ -1,0 +1,114 @@
+<template>
+<view :class="theme" :style="css_vars">
+	<nav-bar 
+		@icon:Click="iconClickEvent" 
+		left-icon="menu" 
+		right-icon="cmd|add" 
+		v-show="currentPage != 3">{{navs[currentPage]}}
+	</nav-bar>
+	<drawer v-model="menu.show"  />
+	<cmd v-model="cmd.show"   />
+	<swiper class="content" :current="currentPage" :duration="duration" @change="onSwiperChange">
+		<swiper-item><projects v-model="contextmenu.cmd" /></swiper-item>
+		<swiper-item><tasks /></swiper-item>
+		<swiper-item><docs /></swiper-item>
+		<swiper-item><mine /></swiper-item>
+	</swiper>	
+	<tab-bar @tabChange="onTabChange" :index="currentPage"/>
+	<contextmenu 
+		:pos="contextmenu.pos" 
+		:menu="contextmenu.menu" 
+		v-model="contextmenu.show"  
+		v-model:cmd="contextmenu.cmd"
+	/>
+</view>
+</template>
+<script lang="uts">
+import projects from "./projects"
+import mine from"./mine"
+import docs from "./docs"
+import tasks from "./tasks"
+import { state } from './store.uts'
+// 1. 先定义对象类型（UTS必须显式类型）
+type MenuType = {
+	show: boolean
+}
+type ConsoleType = {
+	show: boolean
+}
+type ColorHex = "#000000" | "#ffffff";
+
+type ContextmenuType = {
+	cmd: string;
+	pos: number[];
+	show: boolean;
+	menu: string;
+}
+export default {
+	components: {mine,docs,tasks,projects},
+	data() {
+		return {
+			css_vars:`--nav-height:${state.navBarHeight}px` as string, 
+			navs:['闪控','任务中心','帮助文档','个人中心'] as string[],
+			currentPage:0,
+			duration:500,
+			menu:{show: false} as MenuType, //侧拦抽屉
+			cmd:{show: false} as ConsoleType,
+			contextmenu:{
+				    cmd:"",  //命令 ，点击 menu 选择的 title
+					show: false,
+					pos:[0,0],
+					menu:"js&创建脚本|app-manage&创建项目|file&新建文件|folder&新建文件夹"
+				} as ContextmenuType
+		}
+	},
+	computed:{
+		theme(){
+			let frontColor: ColorHex = "#000000"
+			let backgroundColor: ColorHex = "#ffffff"
+			if( state.theme.includes("dark") ){
+				frontColor = "#ffffff"
+				backgroundColor = "#000000"
+			}
+			uni.setNavigationBarColor({frontColor,backgroundColor})
+			return [state.theme,'main']
+		}
+	},
+	methods: {
+		iconClickEvent(name:string,clientX:number,clientY:number){
+			switch(name){
+				case 'menu':
+					this.menu.show = true
+					break
+				case 'add':
+					this.contextmenu.pos = [clientX,clientY]
+					this.contextmenu.show = true
+					break
+				case 'cmd':
+					this.cmd.show = true
+					break
+			}
+		},
+		onTabChange(index:number){
+			this.duration = 0
+			this.currentPage = index
+			setTimeout(()=>{
+				this.duration = 500
+			},500)
+		},
+		onSwiperChange(evt:UniSwiperChangeEvent){
+			this.currentPage = evt.detail.current
+		}
+		
+	}
+}
+</script>
+<style lang="scss">
+.main{
+	height: 100%;
+	.content{
+		flex: 1;
+		background-color: var(--bg-color);
+	}
+}
+</style>

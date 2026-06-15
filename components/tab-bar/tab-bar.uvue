@@ -1,0 +1,82 @@
+<template>
+<view class="tab-bar">
+	<view v-for="(item,index) of tab_bar" class="item" :key="item.title" @click="onTabClick(index)">
+		<v-icon :type="item.icon" size="22px" :color="iconState(index)" />
+		<text :class="titleState(index)">{{item.title}}</text>
+	</view>
+</view>
+</template>
+
+<script>
+type TabBarItem = {
+	title: string,
+	icon: string
+}
+export default {
+	emits:['tabChange'],
+	props:{
+		index: {type:Number,default:0}
+	},
+	data() {
+		return {
+			tab_index:0,
+			tab_bar: [
+				{title: '项目', icon: 'projects'},
+				{title: '任务', icon: 'task'},
+				{title: '文档', icon: 'doc'},
+				{title: '我', icon: 'my'},
+			] as TabBarItem[]
+		}
+	},
+	watch:{
+		index(val){
+			this.tab_index = val
+		}
+	},
+	methods: {
+		iconState(index:number) {
+			let text_color = 'var(--tab-text-color'
+			if(index == this.tab_index ){
+				text_color += '-active'
+			}
+			return text_color + ')'
+		},
+		titleState(index:number){
+			let cls_title = ['title']
+			if(index == this.tab_index ){
+				cls_title.push('active')
+			}
+			return cls_title
+		},
+		onTabClick(index:number){
+			this.tab_index = index
+			this.$emit('tabChange',index)
+		}
+	}
+}
+</script>
+
+<style lang="scss">
+.tab-bar{
+	height: 50px;
+	flex-direction: row;
+	justify-content: space-around;
+	box-sizing: content-box;
+	border-top: 1px solid var(--tab-border-color);
+	background-color: var(--tab-bg-color);
+	padding-bottom: var(--uni-safe-area-inset-bottom);
+	.item{
+		flex: 1;
+		margin: 0 10px;
+		justify-content: center;
+		align-items: center;
+		.title{
+			font-size: 11px;
+			color: var(--tab-text-color);
+			&.active{
+				color: var(--tab-text-color-active);
+			}
+		}
+	}
+}
+</style>

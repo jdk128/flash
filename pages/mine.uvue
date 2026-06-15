@@ -1,0 +1,72 @@
+<template>
+<scroll-view class="mine">
+	<view  class="header-card">
+		<image class="pic"  src="/static/logo.png" />
+		<view  class="info-wrap">
+			<view class="name-group">
+				<text class="name">闪控创始人</text>
+				<v-icon type="qrcode"  color="var(--text-color-grey)"/>
+			</view>
+			<view class="uid-group">
+				<text class="uid">闪控号: eb12580</text>
+				<v-icon type="right" color="var(--text-color-grey)"/>
+			</view>
+		</view>
+	</view>
+</scroll-view >
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				
+			};
+		}
+	}
+</script>
+
+<style lang="scss">
+.mine{
+	height: 100%;
+	.header-card{
+		padding-top: var(--status-bar-height);
+		padding-left: 20px;
+		padding-right: 20px;
+		padding-bottom: 20px;
+		flex-direction: row;
+		background-color: var(--bg-color-grey);
+		.pic{
+			width: 60px;
+			height: 60px;
+			margin-right: 20px;
+			margin-top: 20px;
+		}
+		.info-wrap{
+			flex: 1;
+			margin-top: 20px;
+		}
+		.name-group{
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			padding: 7px 0;
+			.name{
+				font-size: 16px;
+				font-weight: bold;
+				color: var(--text-color);
+			}
+		}
+		.uid-group{
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			padding: 5px 0;
+			.uid{
+				font-size: 12px;
+				color:var(--text-color-grey)
+			}
+		}
+	}
+}
+</style>
